@@ -1,5 +1,5 @@
 ---
-- hosts: appserver
+- hosts: newnode
   become: yes 
   tasks:
     - name: install java 
