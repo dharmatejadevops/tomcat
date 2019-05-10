@@ -1,9 +1,9 @@
 ---
 - hosts: all
-  become: yes
+  become: yes 
   tasks:
-    name: install tree
-    apt:
-      name: tree
-      update_cache: yes
-      state: present
+    - name: install tree
+      apt:
+        name: tree
+        update_cache: yes
+        state: present 
