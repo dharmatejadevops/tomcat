@@ -1,0 +1,65 @@
+---
+- hosts: appserver
+  become: yes 
+  tasks:
+    - name: install java 
+      apt:
+        name: openjdk-8-jdk
+        update_cache: yes
+        state: present 
+    - name: Ensure group "tomcat" exists
+      group:
+        name: tomcat 
+        state: present 
+    - name: Add the user 'tomcat' with a specific uid and a primary group of 'tomcat'
+      user:
+        name: tomcat 
+        comment: tomcat done
+        group: tomcat
+    - name: Download apache-tomcat-8.5.39.tar.gz
+      get_url:
+        url: https://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz
+        dest: /tmp/  
+    - name: create a directory tomcat if not exists
+      file:
+        path: /opt/tomcat
+        state: directory
+        mode: 0755
+    - name: Extract archive
+      unarchive:
+        src: /tmp/apache-tomcat-8.5.39.tar.gz
+        dest: /opt/tomcat                             
+        extra_opts: [--strip-components=1]
+        remote_src: yes
+    - name: change th directory to /opt/tomcat
+      shell: cd /opt/tomcat
+    - name: Change ownership of Tomcat installation
+      file: 
+        path: /opt/tomcat
+        owner: tomcat 
+        group: tomcat 
+        state: directory
+        mode: 0755
+        recurse: yes
+    - name: Configure Tomcat server
+      template: 
+        src: tomcat-server.xml.j2 
+        dest: /etc/systemd/system/
+      notify: 
+      - restart tomcat
+    - name: remove tomcat-users.xml
+      file: 
+        path: /opt/tomcat/conf/tomcat-user.xml
+        state: absent      
+    - name: configure tomcat-user.xml
+      copy:
+        src: copy/tomcat-users.xml
+        dest: /opt/tomcat/conf/
+      notify:
+      - restart tomcat 
+  handlers:
+    - name: tomcat-8-restart
+      service: 
+        name: restart tomcat 
+        state: restarted
+
