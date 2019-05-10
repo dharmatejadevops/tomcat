@@ -1,5 +1,5 @@
 ---
-- hosts: newnode
+- hosts: all
   become: yes 
   tasks:
     - name: install java 
