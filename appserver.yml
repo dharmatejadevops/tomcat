@@ -3,7 +3,7 @@
   become: yes 
   tasks:
     - name: install java 
-      apt:
+      yum:
         name: openjdk-8-jdk
         update_cache: yes
         state: present 
